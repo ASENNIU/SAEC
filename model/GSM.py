@@ -29,7 +29,7 @@ class GSE(nn.Module):
         config.pooling_type = 'transformer'
         self.pool_texts = CrossAttetionLayer(config)
         # self.text_rounting = nn.Linear(config.embed_dim * 2, config.embed_dim, bias=False)
-        self.caption_proj = nn.nn.Linear(config.embed_dim, config.embed_dim, bias=False)
+        self.caption_proj = nn.Linear(config.embed_dim, config.embed_dim, bias=False)
 
 
     def forward(self, data, return_all_frames=False):
@@ -50,7 +50,7 @@ class GSE(nn.Module):
 
         if self.config.is_routing_feature == 1:
             fusion_features = self.text_rounting(torch.cat([video_features_pooled_by_cap, self.caption_proj(titles_features)], dim=-1))
-        elif self.config.is_routing_features == 2:
+        elif self.config.is_routing_feature == 2:
             fusion_features = (video_features_pooled_by_cap + titles_features) / 2.0
         else:
             fusion_features = video_features_pooled_by_cap

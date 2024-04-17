@@ -269,9 +269,9 @@ class CrossAttetionLayer(nn.Module):
         assert self.embed_dim % self.num_heads == 0
         self.head_dim = self.embed_dim // self.num_heads
 
-        self.q_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.k_proj = nn.Linear(self.embed_dim, self.embed_dim)
-        self.v_proj = nn.Linear(self.embed_dim, self.embed_dim)
+        self.q_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=False)
+        self.k_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=False)
+        self.v_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=False)
         self.out_proj = nn.Linear(self.embed_dim, self.embed_dim)
 
         self.linear_proj = nn.Linear(self.embed_dim, self.embed_dim)

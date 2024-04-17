@@ -120,6 +120,7 @@ class Trainer(BaseTrainer):
         Validate at a step when training an epoch at a certain step
         :return: A log that contains information about validation
         """
+        # self.model.cuda(self.device)
         self.model.eval()
         total_val_loss = 0.0
         text_embed_arr = []
@@ -136,8 +137,10 @@ class Trainer(BaseTrainer):
 
                 if isinstance(data['text'], torch.Tensor):
                     data['text'] = data['text'].to(self.device)
+                    data['titles'] = data['titles'].to(self.device)
                 else:
                     data['text'] = {key: val.to(self.device) for key, val in data['text'].items()}
+                    data['titles'] = {key: val.to(self.device) for key, val in data['titles'].items()}
 
                 data['video'] = data['video'].to(self.device)
 
@@ -192,14 +195,14 @@ class Trainer(BaseTrainer):
                 res[m + "-window"] = np.mean(self.window_metric[m])
 
             logger.info(f"-----Val Epoch: {epoch}, dl: {step}/{num_steps}, loss: {total_val_loss}-----\n")
-            logger.info(f"\tText -> Video:")
+            logger.info(f"\t>>> Text -> Video:")
             logger.info(f"\t>>> R@1: {res['R1']}, R@5: {res['R5']}, R@10: {res['R10']}, R@50: {res['R50']}, MedR: {res['MedR']}, MeanR: {res['MeanR']}")
-            logger.info(f"\twindow:")
+            logger.info(f"\t>>> window:")
             logger.info(f"\t>>> R@1: {res['R1-window']}, R@5: {res['R5-window']}, R@10: {res['R10-window']}, R@50: {res['R50-window']}, MedR: {res['MedR-window']}, MeanR: {res['MeanR-window']}")
 
             # res_v2t = v2t_metrics(sims)
             res_v2t = _compute_metrics(sims.T)
-            logger.info(f"\tVideo -> Text:")
+            logger.info(f"\t>>> Video -> Text:")
             logger.info(
                 f"\t>>> R@1: {res_v2t['R1']}, R@5: {res_v2t['R5']}, R@10: {res_v2t['R10']}, R@50: {res_v2t['R50']}, MedR: {res_v2t['MedR']}, MeanR: {res_v2t['MeanR']}\n")
             logger.info("\t--------------------------- Metrics after DSL ----------------------------------")
@@ -207,10 +210,10 @@ class Trainer(BaseTrainer):
             res_v2t_dsl = _compute_dsl_metrics(sims.T)
             # res_t2v_dsl = t2v_metrics_dsl(sims)
             res_t2v_dsl = _compute_dsl_metrics(sims)
-            logger.info(f"\tText -> Video DSL:")
+            logger.info(f"\t>>> Text -> Video DSL:")
             logger.info(
                 f"\t>>> R@1: {res_t2v_dsl['R1']}, R@5: {res_t2v_dsl['R5']}, R@10: {res_t2v_dsl['R10']}, R@50: {res_t2v_dsl['R50']}, MedR: {res_t2v_dsl['MedR']}, MeanR: {res_t2v_dsl['MeanR']}")
-            logger.info(f"\tVideo -> Text DSL:")
+            logger.info(f"\t>>> Video -> Text DSL:")
             logger.info(
                 f"\t>>> R@1: {res_v2t_dsl['R1']}, R@5: {res_v2t_dsl['R5']}, R@10: {res_v2t_dsl['R10']}, R@50: {res_v2t_dsl['R50']}, MedR: {res_v2t_dsl['MedR']}, MeanR: {res_v2t_dsl['MeanR']}\n")
 

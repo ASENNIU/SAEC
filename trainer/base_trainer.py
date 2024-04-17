@@ -49,9 +49,9 @@ class BaseTrainer:
 
 
     def train(self):
-        logger.info(f"Start training with epoch {self.start_epoch} to {self.start_epoch + self.num_epochs}...")
+        logger.info(f"\t>>>>>>>>>>>  Start training with epoch {self.start_epoch} to {self.start_epoch + self.num_epochs - 1}...")
         for epoch in range(self.start_epoch, self.start_epoch + self.num_epochs):
-            logger.info(f"Do epoch: {epoch}...")
+            logger.info(f"\t>>>>>>>>>>>>> Do epoch: {epoch}...")
             result = self._train_epoch(epoch)
             if epoch % self.config.save_every == 0:
                     self._save_checkpoint(epoch, save_best=False)
