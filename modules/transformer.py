@@ -134,7 +134,7 @@ class MLP(nn.Module):
         self.gelu = nn.GELU()
         self.linear2 = nn.Linear(self.n_dim, self.n_dim)
 
-        self._init_parameters()
+        # self._init_parameters()
     def _init_parameters(self):
         for name, param in self.named_parameters():
             if 'linear' in name or 'proj' in name:
@@ -214,30 +214,28 @@ class SelfMultiHeadedAttention(nn.Module):
         return o, attention_weights
 
 
+class ResidualAttentionBlock(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.attn = SelfMultiHeadedAttention(config)
+        self.mlp = MLP(config.embed_dim)
+        self.layer_norm1 = nn.LayerNorm(self.embed_dim)
+        self.layer_norm2 = nn.LayerNorm(self.embed_dim)
+        self.dropout = nn.Dropout(config.transformer_dropout)
+    def forward(self, x):
+        attn_x = x + self.attn(self.layer_norm1(x))
+        x = x + self.mlp(self.layer_norm2(attn_x))
+        x = x + self.dropout(attn_x)
+
+        return x
+
+
 class FusionTransformer(nn.Module):
     def __init__(self, config: Config):
         super(FusionTransformer, self).__init__()
-        self.embed_dim = config.embed_dim
-        dropout = config.transformer_dropout
+        layers = config.layers
 
-        self.fusion_attention = SelfMultiHeadedAttention(config)
-
-        # self.mlp = MLP(self.embed_dim)
-
-        self.layer_norm1 = nn.LayerNorm(self.embed_dim)
-        self.layer_norm2 = nn.LayerNorm(self.embed_dim)
-        self.dropout = nn.Dropout(dropout)
-        self.ffn_proj = nn.Linear(self.embed_dim, self.embed_dim, bias=False)
-        # self._init_parameters()
-
-    def _init_parameters(self):
-        for name, param in self.named_parameters():
-            if 'linear' in name or 'proj' in name:
-                if 'weight' in name:
-                    nn.init.eye_(param)
-                elif 'bias' in name:
-                    param.data.fill_(0.)
-
+        self.resblocks = nn.Sequential(*[ResidualAttentionBlock(config) for _ in range(layers)])
     def forward(self, video_embeds):
         """
         Input
@@ -246,17 +244,8 @@ class FusionTransformer(nn.Module):
         Output
             out: num_vids x num_frames x embed_dim
         """
-        video_embeds_ln = self.layer_norm1(video_embeds)
+        return self.resblocks(video_embeds)[0]
 
-        # num_vids x num_frames x embed_dim
-        attn_out, attention_weighs = self.fusion_attention(video_embeds_ln)
-        attn_out = attn_out + video_embeds
-
-        attn_out_ln = self.layer_norm2(attn_out)
-        out = self.ffn_proj(attn_out_ln)
-        out = self.dropout(out) + attn_out
-
-        return out
 
 class CrossAttetionLayer(nn.Module):
     def __init__(self, config: Config):

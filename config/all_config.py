@@ -40,6 +40,7 @@ class AllConfig(Config):
         parser.add_argument('--embed_dim', type=int, default=512, help="Dimensionality of the model embedding")
         parser.add_argument('--caption_weight', type=float, default=0.2, help="caption loss weight")
         parser.add_argument('--is_routing_feature', type=int, default=1, help="is routing global feature")
+        parser.add_argument('--layers', type=int, default=4, help="transformer layers")
 
 
 

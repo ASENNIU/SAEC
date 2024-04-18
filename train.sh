@@ -1,5 +1,5 @@
 python train.py \
-  --exp_name=MSRVTT_GSM_CoAttention \
+  --exp_name=MSRVTT_GSM_CoAttention_routing0 \
   --videos_dir=/home/leon/workspace/multimodal/dataset/MSR-VTT-CLIP4clip/MSRVTT_Videos \
   --arch=GSE \
   --batch_size=64 \

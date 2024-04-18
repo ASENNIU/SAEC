@@ -32,6 +32,7 @@ class Config(ABC):
         self.embed_dim = args.embed_dim
         self.caption_weight = args.caption_weight
         self.is_routing_feature = args.is_routing_feature
+        self.layers = args.layers
 
 
         self.loss = args.loss
